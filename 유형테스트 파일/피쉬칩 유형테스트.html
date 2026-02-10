@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나에게 어울리는 맛 테스트 | 왔다피쉬칩</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        @font-face {
+            font-family: 'Cafe24Ssurround';
+            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/Cafe24Ssurround.woff') format('woff');
+        }
+        
+        body { 
+            font-family: 'Pretendard', sans-serif;
+            background-color: #fff9e6; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            transition: background 0.5s ease; 
+        }
+
+        body.result-bg {
+            background-image: url('스낵2.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        #container { 
+            background-color: white; 
+            width: 90%; 
+            max-width: 420px; 
+            padding: 40px 25px; 
+            border-radius: 24px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            text-align: center; 
+            position: relative;
+            z-index: 1;
+            transition: background-color 0.2s ease;
+        }
+
+        body.loading-state #container { 
+            background-color: #ffffff !important; 
+            transition: none !important;
+        }
+
+        body.result-bg #container { 
+            background-color: rgba(255, 255, 255, 0.97) !important; 
+            transition: none !important;
+        }
+
+        .point-font { font-family: 'Cafe24Ssurround', sans-serif; letter-spacing: -0.5px; }
+        h1 { color: #ff6b00; font-size: 26px; line-height: 1.4; margin-top: 0; font-weight: 800; }
+        h2 { color: #333; font-size: 20px; margin-bottom: 20px; font-weight: 700; word-break: keep-all; }
+        p { color: #555; font-size: 16px; line-height: 1.6; word-break: keep-all; }
+
+        .btn { 
+            display: block; width: 100%; padding: 16px; margin: 12px 0; 
+            border: 2px solid #ff6b00; border-radius: 14px; 
+            background-color: white; cursor: pointer; 
+            font-size: 16px; font-weight: 700; color: #ff6b00; 
+            transition: 0.2s; text-decoration: none; box-sizing: border-box;
+            font-family: inherit;
+        }
+        .btn:hover { background-color: #ff6b00; color: white; }
+        
+        .start-btn { background-color: #ff6b00; color: white; border: none; font-size: 18px; margin-top: 25px; }
+        .store-btn { background-color: #03c75a; border: none; color: white; }
+        
+        /* 인스타 버튼 스타일 */
+        .insta-btn { 
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            border: none; color: white; margin-top: 30px;
+        }
+        
+        /* 인스타 계정 바로가기 스타일 */
+        .insta-link-btn {
+            border: 2px solid #e1306c;
+            color: #e1306c;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .insta-link-btn:hover { background-color: #e1306c; color: white; }
+
+        .hidden { display: none; }
+
+        #loading-screen { padding: 40px 0; }
+        .fish-loading { 
+            width: 150px; 
+            height: 150px; 
+            display: inline-block; 
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            animation: swim 1.8s infinite linear, walk 0.4s infinite; 
+        }
+
+        @keyframes walk {
+            0%, 49% { background-image: url('1.png'); }
+            50%, 100% { background-image: url('2.png'); }
+        }
+
+        @keyframes swim {
+            0% { transform: translateX(-50px) rotateY(180deg); }
+            49% { transform: translateX(50px) rotateY(180deg); }
+            50% { transform: translateX(50px) rotateY(0deg); }
+            99% { transform: translateX(-50px) rotateY(0deg); }
+            100% { transform: translateX(-50px) rotateY(180deg); }
+        }
+
+        #result-img-container { width: 100%; margin: 20px 0; border-radius: 15px; overflow: hidden; }
+        #result-img-container img { width: 100%; height: auto; display: block; }
+
+        .result-box { background-color: #fffcf2; padding: 20px; border-radius: 15px; text-align: left; margin-bottom: 20px; }
+        .result-box ul { list-style: none; padding: 0; margin: 15px 0; }
+        .result-box li { margin-bottom: 8px; font-weight: 600; color: #555; font-size: 14px; }
+
+        #result-features {
+            background-color: #fff;
+            border: 2px solid #ff6b00;
+            border-radius: 12px;
+            padding: 18px;
+            font-size: 15px;
+            font-weight: 700;
+            color: #ff6b00;
+            line-height: 1.6;
+            margin: 10px 0 25px 0;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(255, 107, 0, 0.1);
+            word-break: keep-all;
+        }
+
+        #progress { width: 100%; height: 6px; background-color: #eee; border-radius: 3px; margin-bottom: 30px; }
+        #progress-bar { width: 0%; height: 100%; background-color: #ff6b00; border-radius: 3px; transition: 0.3s; }
+    </style>
+</head>
+<body>
+
+<div style="display:none;">
+    <img src="1.jpg"><img src="2.jpg"><img src="스낵2.jpg">
+</div>
+
+<div id="container">
+    <div id="start-screen">
+        <h2 style="color: #ff6b00; margin-bottom: 5px;" class="point-font">🐟 왔다피쉬칩 취향찾기</h2>
+        <h1 class="point-font">나에게 찰떡인<br>피쉬칩은 무엇일까?</h1>
+        <p>가장 맛있는 순간을 찾아주는<br>나만의 맞춤 스낵 가이드</p>
+        <button class="btn start-btn" onclick="startTest()">테스트 시작하기 👉</button>
+    </div>
+
+    <div id="question-screen" class="hidden">
+        <div id="progress"><div id="progress-bar"></div></div>
+        <h2 id="question-text">질문 내용</h2>
+        <div id="answer-buttons"></div>
+    </div>
+
+    <div id="loading-screen" class="hidden">
+        <div class="fish-loading"></div>
+        <h2 style="margin-top: 20px; color: #007bff;" class="point-font">입맛 분석 중...</h2>
+        <p>알래스카에서 신선한 피쉬칩을<br>가져오는 중이에요!</p>
+    </div>
+
+    <div id="result-screen" class="hidden">
+        <p style="margin-bottom: 5px; font-weight: bold; color: #ff6b00;">나의 운명적인 맛은...</p>
+        <h1 id="result-title" style="font-size: 26px; margin-bottom: 15px;" class="point-font"></h1>
+        <div id="result-img-container"><img id="final-result-image" src="" alt="제품 이미지"></div>
+        <div class="result-box">
+            <p id="result-desc" style="font-size: 15px; font-weight: 600; color: #333; text-align: center;"></p>
+            <p id="result-features"></p>
+            <p style="font-size: 14px; color: #ff6b00; font-weight: 800; margin-top: 10px;" class="point-font">이럴 때 딱이에요!</p>
+            <ul id="result-situations"></ul>
+        </div>
+        
+        <a href="https://smartstore.naver.com/whatdafish_mall/products/12732443489" target="_blank" class="btn store-btn">🛒 이 맛 구매하러 가기</a>
+        <button class="btn insta-btn" onclick="copyLink()">📸 결과 공유하고 스토리에 올리기</button>
+        <a href="https://www.instagram.com/whatda_fish/" target="_blank" class="btn insta-link-btn">👀 왔다피쉬칩이 더 궁금하다면?</a>
+        
+        <button class="btn" onclick="location.reload()" style="border: none; color: #999; font-size: 13px; margin-top: 15px;">다시 하기</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        { q: "맛집을 갈 때 나는?", a: [{text: "미리 예약하고 계획대로 간다", type: "A"}, {text: "웨이팅이 있어도 특별한 맛을 원한다", type: "B"}, {text: "그냥 눈에 보이는 맛있는 곳에 간다", type: "C"}] },
+        { q: "헬스장에서 운동할 때 나의 스타일은?", a: [{text: "이미 루틴이 다 짜여 있다", type: "A"}, {text: "그날그날 꽂히는 기구 위주로 한다", type: "B"}, {text: "친구랑 수다 떨며 즐겁게 한다", type: "C"}] },
+        { q: "안주를 고를 때 기준은?", a: [{text: "누구나 좋아하는 달달 고소한 맛", type: "A"}, {text: "코가 뻥 뚫리는 자극적인 맛", type: "B"}, {text: "풍미가 진하고 짭조름한 맛", type: "C"}] },
+        { q: "스트레스 받았을 때 생각나는 것은?", a: [{text: "달콤한 디저트로 힐링", type: "A"}, {text: "매콤하거나 알싸한 요리로 스트레스 타파", type: "B"}, {text: "꾸덕하고 고소한 치즈 요리로 보상", type: "C"}] },
+        { q: "여행지에서 나의 모습은?", a: [{text: "박물관이나 유적지 코스 정석대로!", type: "A"}, {text: "남들이 안 가는 숨은 맛집 탐방!", type: "B"}, {text: "유명한 핫플에서 인증샷 찍기!", type: "C"}] },
+        { q: "친구가 과자를 한 입만 달라고 한다면?", a: [{text: "정갈하게 덜어서 준다", type: "A"}, {text: "가장 가루가 많이 묻은 맛있는 부분을 준다", type: "B"}, {text: "봉지째 쿨하게 건넨다", type: "C"}] }
+    ];
+
+    const results = {
+        A: { title: "부드럽고 섬세한\n인간버터!", desc: "안정적인 분위기를 선호하는 당신에겐 버터구이 오징어맛이 운명!", img: "1버터구이상세.jpg", situations: ["🍺 퇴근 후 시원한 캔맥주 깔 때", "✍️ 카공 중 당 충전이 필요할 때", "🎬 주말에 넷플릭스 보며 힐링할 때"], features: "✨ 알래스카 명태 원물 그대로!\n단백질 9g 함유로 죄책감 없이 즐기세요!" },
+        B: { title: "톡 쏘는 매력의\n자유로운 모험가!", desc: "독창적인 성격의 당신에겐 알싸한 와사비마요맛이 찰떡궁합!", img: "1와사비마요상세.jpg", situations: ["🥗 식단 관리 중 속세의 맛이 그리울 때", "🔥 코 뻥 뚫리는 자극이 필요할 때", "🍺 혼술할 때 특별한 안주가 땡긴다면"], features: "✨ 톡 쏘는 와사비 마요의 매력!\n글루텐프리 쌀과자로 트랜스지방 걱정 끝!" },
+        C: { title: "분위기를 밝히는\n에너자이저!", desc: "열정적인 당신에겐 진하고 짭조름한 체다치즈맛이 어울려요.", img: "1체다치즈상세.jpg", situations: ["💪 오운완! 단백질 보충이 필요할 때", "🥳 친구들과 홈파티! 맥주&와인 안주로 딱", "🧀 입이 심심할 때, 찐~한 치즈 풍미가 땡긴다면"], features: "✨ 피쉬칩과 진한 체다치즈의 만남!\n밀가루 없는 건강한 간식으로 단백질을 채워보세요." }
+    };
+
+    let currentIdx = 0;
+    let scores = { A: 0, B: 0, C: 0 };
+
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function startTest() {
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('question-screen').classList.remove('hidden');
+        showQuestion();
+    }
+
+    function showQuestion() {
+        const q = questions[currentIdx];
+        document.getElementById('question-text').innerText = q.q;
+        document.getElementById('progress-bar').style.width = (currentIdx / questions.length) * 100 + '%';
+        const btnContainer = document.getElementById('answer-buttons');
+        btnContainer.innerHTML = '';
+        shuffle([...q.a]).forEach(ans => {
+            const btn = document.createElement('button');
+            btn.className = 'btn';
+            btn.innerText = ans.text;
+            btn.onclick = () => nextQuestion(ans.type);
+            btnContainer.appendChild(btn);
+        });
+    }
+
+    function nextQuestion(type) {
+        scores[type]++;
+        currentIdx++;
+        if (currentIdx < questions.length) showQuestion();
+        else {
+            document.getElementById('question-screen').classList.add('hidden');
+            document.getElementById('loading-screen').classList.remove('hidden');
+            document.body.classList.add('loading-state');
+            setTimeout(showResult, 2200);
+        }
+    }
+
+    function showResult() {
+        document.getElementById('loading-screen').classList.add('hidden');
+        document.body.classList.remove('loading-state'); 
+        document.body.classList.add('result-bg');
+        document.getElementById('result-screen').classList.remove('hidden');
+
+        const finalType = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+        const data = results[finalType];
+        
+        document.getElementById('result-title').innerText = data.title;
+        document.getElementById('result-desc').innerText = data.desc;
+        document.getElementById('final-result-image').src = data.img;
+        document.getElementById('result-features').innerText = data.features;
+
+        const sitList = document.getElementById('result-situations');
+        sitList.innerHTML = '';
+        data.situations.forEach(sit => {
+            const li = document.createElement('li');
+            li.innerText = sit;
+            sitList.appendChild(li);
+        });
+    }
+
+    function copyLink() {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            alert("링크가 복사되었습니다! 인스타 스토리의 '링크 스티커'로 공유해보세요! 🐟✨");
+        });
+    }
+</script>
+</body>
+</html>
